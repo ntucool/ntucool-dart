@@ -49,7 +49,6 @@ class Pagination<E> extends Stream<E> {
     } else {
       return Tuple2(null, null);
     }
-    print(tmp.item1);
     var values = tmp.item1 as List<dynamic>;
     var response = tmp.item2;
     var constructor = this.constructor ?? (e) => e;

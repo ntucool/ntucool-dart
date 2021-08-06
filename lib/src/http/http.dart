@@ -522,7 +522,7 @@ class Session {
     payload?.write(request);
 
     var response = await request.close();
-    print(request.headers);
+    // print(request.headers);
     print(response.redirects.length);
     _updateCookiesFromResponse(cookieJar, response, request.uri);
     // print(['cookieJar', cookieJar]);

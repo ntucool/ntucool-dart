@@ -5,13 +5,12 @@ import 'dart:io' show HttpHeaders;
 
 import 'package:html/parser.dart' show parse;
 
-import 'src/api/common.dart' show listYourCourses;
+import 'src/api/common.dart' as common;
+import 'src/api/paginations.dart' show Pagination;
 import 'src/exceptions.dart' show RuntimeException;
-import 'src/http/cookies.dart' show SimpleCookie;
-import 'src/http/helpers.dart' show mapToQuery;
 import 'src/http/http.dart' show Session;
 import 'src/objects.dart' show Interface;
-import 'src/utils.dart' show addParameterBySelectors, safeToString;
+import 'src/utils.dart' show addParameterBySelectors;
 
 class Client with Interface {
   static final defaultBaseUrl = Uri.parse('https://cool.ntu.edu.tw/');
@@ -106,6 +105,10 @@ class Client with Interface {
     print((await response.text()).contains('數位系統與實'));
 
     return response.statusCode == 200;
+  }
+
+  Pagination<common.Course> listCourses() {
+    return common.listYourCourses(session, baseUrl);
   }
 
   void close({bool force = false}) => session.close();
