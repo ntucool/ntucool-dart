@@ -1,24 +1,52 @@
 library ntucool;
 
 import 'dart:collection' show LinkedHashMap;
-import 'dart:io' show HttpHeaders;
+import 'dart:convert';
+import 'dart:io' show File, HttpHeaders;
 
 import 'package:html/parser.dart' show parse;
 
-import 'src/api/common.dart' as common;
-import 'src/api/paginations.dart' show Pagination;
+import 'src/api/api.dart' show Api;
 import 'src/exceptions.dart' show RuntimeException;
+import 'src/http/cookies.dart' show SimpleCookie;
 import 'src/http/http.dart' show Session;
 import 'src/objects.dart' show Interface;
 import 'src/utils.dart' show addParameterBySelectors;
 
+export 'src/api/dashboards.dart' show DashboardCard;
+export 'src/objects.dart' show sentinel;
+
 class Client with Interface {
   static final defaultBaseUrl = Uri.parse('https://cool.ntu.edu.tw/');
 
-  covariant late Session session;
-  covariant late Uri baseUrl;
+  late Session _session;
+  late Uri _baseUrl;
+
+  @override
+  Session get session => _session;
+  @override
+  set session(covariant Session value) {
+    _session = value;
+    for (var interface in subInterfaces) {
+      interface.session = value;
+    }
+  }
+
+  @override
+  Uri get baseUrl => _baseUrl;
+  @override
+  set baseUrl(covariant Uri value) {
+    _baseUrl = value;
+    for (var interface in subInterfaces) {
+      interface.baseUrl = value;
+    }
+  }
+
+  late Api api;
 
   Client({Session? session, Uri? baseUrl}) {
+    api = Api();
+    this.subInterfaces.addAll([api]);
     this.session = session ?? Session();
     this.baseUrl = baseUrl ?? defaultBaseUrl;
   }
@@ -101,15 +129,46 @@ class Client with Interface {
             ['body > form > input[type=hidden][name="SAMLResponse"]'], [null]));
 
     response = await session.postUrl(url, data: (map), headers: headers);
-    // await response.drain();
-    print((await response.text()).contains('數位系統與實'));
+    await response.drain();
 
     return response.statusCode == 200;
   }
 
-  Pagination<common.Course> listCourses() {
-    return common.listYourCourses(session, baseUrl);
+  void close({bool force = false}) => session.close();
+}
+
+main(List<String> args) async {
+  var client = Client();
+
+  print(client.api.session);
+
+  if (args.isNotEmpty) {
+    var file = File(args.first);
+    var data = jsonDecode(file.readAsStringSync());
+    if (data is Map<String, dynamic>) {
+      if (data.containsKey('username') && data.containsKey('password')) {
+        var username = data['username'];
+        var password = data['password'];
+        var ok = await client.saml(username, password);
+        assert(ok == true);
+      } else {
+        var cookies = SimpleCookie.fromJson(data);
+        client.session.cookieJar.updateCookies(cookies);
+      }
+    }
   }
 
-  void close({bool force = false}) => session.close();
+  // var courses = await client.api.courses.getCourses().toList();
+  // print(courses);
+
+  // var dashboardCards = await client.getDashboardCards();
+  // print(dashboardCards);
+
+  var customColors = await client.api.users.getCustomColors(id: 'self');
+  print(customColors);
+
+  var cookies = client.session.cookieJar.filterCookies(client.baseUrl);
+  var file = File('../credentials/cookies.json');
+  file.writeAsStringSync(jsonEncode(cookies));
+  client.close();
 }

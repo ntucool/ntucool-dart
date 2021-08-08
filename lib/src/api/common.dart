@@ -1,5 +1,3 @@
-import 'package:ntucool/src/api/paginations.dart';
-
 import '../objects.dart' show Base;
 import '../http/http.dart' show Session;
 
@@ -152,36 +150,70 @@ class Course extends Base {
   Object? get template => getattr('template');
 }
 
-/// List your courses
+/// A Canvas user, e.g. a student, teacher, administrator, observer, etc.
 ///
-/// `GET /api/v1/courses`
-///
-/// Returns the paginated list of active courses for the current user.
-///
-/// https://canvas.instructure.com/doc/api/courses.html#method.courses.index
-Pagination<Course> listYourCourses(
-  Session session,
-  Uri baseUrl, {
-  Object? enrollmentType,
-  Object? enrollmentRoleId,
-  Object? enrollmentState,
-  Object? excludeBlueprintCourses,
-  Object? include,
-  Object? state,
-  int? perPage,
-  Object? page,
-  Object? params,
-}) {
-  var method = 'GET';
-  var url = '/api/v1/courses';
-  var paramsList = [];
-  return Pagination(
-    session,
-    method,
-    baseUrl,
-    reference: url,
-    paramsList: paramsList,
-    constructor: (value) =>
-        Course(attributes: value, session: session, baseUrl: baseUrl),
-  );
+/// https://canvas.instructure.com/doc/api/users.html#User
+class User extends Base {
+  User({Map<String, dynamic>? attributes, Session? session, Uri? baseUrl})
+      : super(attributes: attributes, session: session, baseUrl: baseUrl);
+
+  final List<String> toStringNames = const ['id', 'name'];
+
+  /// The ID of the user.
+  Object? get id => getattr('id');
+
+  /// The name of the user.
+  Object? get name => getattr('name');
+
+  /// The name of the user that is should be used for sorting groups of users, such
+  /// as in the gradebook.
+  Object? get sortableName => getattr('sortable_name');
+
+  /// A short name the user has selected, for use in conversations or other less
+  /// formal places through the site.
+  Object? get shortName => getattr('short_name');
+
+  /// The SIS ID associated with the user.  This field is only included if the user
+  /// came from a SIS import and has permissions to view SIS information.
+  Object? get sisUserId => getattr('sis_user_id');
+
+  /// The id of the SIS import.  This field is only included if the user came from
+  /// a SIS import and has permissions to manage SIS information.
+  Object? get sisImportId => getattr('sis_import_id');
+
+  /// The integration_id associated with the user.  This field is only included if
+  /// the user came from a SIS import and has permissions to view SIS information.
+  Object? get integrationId => getattr('integration_id');
+
+  /// The unique login id for the user.  This is what the user uses to log in to
+  /// Canvas.
+  Object? get loginId => getattr('login_id');
+
+  /// If avatars are enabled, this field will be included and contain a url to
+  /// retrieve the user's avatar.
+  Object? get avatarUrl => getattr('avatar_url');
+
+  /// Optional: This field can be requested with certain API calls, and will return
+  /// a list of the users active enrollments. See the List enrollments API for more
+  /// details about the format of these records.
+  Object? get enrollments => getattr('enrollments');
+
+  /// Optional: This field can be requested with certain API calls, and will return
+  /// the users primary email address.
+  Object? get email => getattr('email');
+
+  /// Optional: This field can be requested with certain API calls, and will return
+  /// the users locale in RFC 5646 format.
+  Object? get locale => getattr('locale');
+
+  /// Optional: This field is only returned in certain API calls, and will return a
+  /// timestamp representing the last time the user logged in to canvas.
+  Object? get lastLogin => getattr('last_login');
+
+  /// Optional: This field is only returned in certain API calls, and will return
+  /// the IANA time zone name of the user's preferred timezone.
+  Object? get timeZone => getattr('time_zone');
+
+  /// Optional: The user's bio.
+  Object? get bio => getattr('bio');
 }

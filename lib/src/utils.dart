@@ -85,16 +85,14 @@ Future<Tuple2<dynamic, ApiException?>> getJsonFromResponse(
   if (text.startsWith('while(1);')) {
     text = text.substring('while(1);'.length);
   }
-  var ok = false;
   dynamic data = sentinel;
   try {
     data = jsonDecode(text);
-    ok = true;
   } on FormatException catch (e) {
     exception = exception ?? JsonDecodeException(e);
   }
   if (exception != null) {
-    if (ok) {
+    if (data != sentinel) {
       String message = '';
       var tmp = exception.message;
       if (tmp != null) {
@@ -105,9 +103,9 @@ Future<Tuple2<dynamic, ApiException?>> getJsonFromResponse(
       }
       message += 'data: $data';
       exception.message = message;
-      if (throwException) {
-        throw exception;
-      }
+    }
+    if (throwException) {
+      throw exception;
     }
   }
   return Tuple2(data, exception);
