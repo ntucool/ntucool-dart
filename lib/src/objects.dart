@@ -1,5 +1,4 @@
 import 'dart:collection' show MapBase;
-import 'dart:io' show HttpClientRequest;
 
 import 'package:collection/collection.dart' show DeepCollectionEquality;
 
@@ -8,30 +7,35 @@ import 'http/http.dart' show Response, Session;
 
 class XCSRFTokenSession extends Session {
   @override
-  Future<Response> request(HttpClientRequest request,
-      {Object? params,
-      Object? data,
-      Object? json,
-      BaseCookie? cookies,
-      Map<String, String>? headers,
-      bool followRedirects = true,
-      int maxRedirects = 5}) {
-    if (const ['POST', 'PUT', 'DELETE']
-        .contains(request.method.toUpperCase())) {
-      var tmpCookies = this.cookieJar.filterCookies(request.uri);
+  Future<Response> requestUrl(
+    String method,
+    Uri url, {
+    Object? params,
+    Object? data,
+    Object? json,
+    BaseCookie? cookies,
+    Map<String, String>? headers,
+    bool followRedirects = true,
+    int maxRedirects = 5,
+  }) {
+    if (const ['POST', 'PUT', 'DELETE'].contains(method.toUpperCase())) {
+      var tmpCookies = this.cookieJar.filterCookies(url);
       if (tmpCookies.containsKey('_csrf_token')) {
         headers = headers ?? {};
         headers['X-CSRF-Token'] =
             Uri.decodeComponent(tmpCookies['_csrf_token']!.value);
       }
     }
-    return super.request(request,
-        data: data,
-        json: json,
-        cookies: cookies,
-        headers: headers,
-        followRedirects: followRedirects,
-        maxRedirects: maxRedirects);
+    return super.requestUrl(
+      method,
+      url,
+      data: data,
+      json: json,
+      cookies: cookies,
+      headers: headers,
+      followRedirects: followRedirects,
+      maxRedirects: maxRedirects,
+    );
   }
 }
 
@@ -46,18 +50,18 @@ class Sentinel {
 const sentinel = Sentinel._sentinel();
 
 class Simple extends MapBase {
-  late Map<String, dynamic> attirbutes;
+  late Map<String, dynamic> attributes;
 
   final List<String> toStringNames = const [];
 
   Simple({Map<String, dynamic>? attributes}) {
-    this.attirbutes = attributes ?? {};
+    this.attributes = attributes ?? {};
   }
 
   @override
   bool operator ==(Object other) =>
       other is Simple &&
-      const DeepCollectionEquality().equals(attirbutes, other.attirbutes);
+      const DeepCollectionEquality().equals(attributes, other.attributes);
 
   @override
   int get hashCode => super.hashCode;
@@ -67,8 +71,8 @@ class Simple extends MapBase {
     if (toStringNames.isNotEmpty) {
       var info = [];
       toStringNames.forEach((key) {
-        if (attirbutes.containsKey(key)) {
-          info.add('$key=${Error.safeToString(attirbutes[key])}');
+        if (attributes.containsKey(key)) {
+          info.add('$key=${Error.safeToString(attributes[key])}');
         }
       });
       if (info.isNotEmpty) {
@@ -79,23 +83,35 @@ class Simple extends MapBase {
   }
 
   @override
-  operator [](Object? key) => attirbutes[key];
+  operator [](Object? key) => attributes[key];
 
   @override
-  void operator []=(key, value) => attirbutes[key] = value;
+  void operator []=(key, value) => attributes[key] = value;
 
   @override
-  void clear() => attirbutes.clear();
+  void clear() => attributes.clear();
 
   @override
-  Iterable get keys => attirbutes.keys;
+  Iterable get keys => attributes.keys;
 
   @override
-  remove(Object? key) => attirbutes.remove(key);
+  remove(Object? key) => attributes.remove(key);
 
-  Object? getattr(String name) {
-    if (attirbutes.containsKey(name)) {
-      return attirbutes[name];
+  Object? getattr(
+    String name, {
+    Object? constructor(attirbutes)?,
+    bool isList = false,
+  }) {
+    if (attributes.containsKey(name)) {
+      var value = attributes[name];
+      if (constructor != null) {
+        if (isList) {
+          return [for (var v in value) constructor(v)];
+        } else {
+          return constructor(value);
+        }
+      }
+      return value;
     }
     return sentinel;
   }
