@@ -1,6 +1,5 @@
-import 'dart:convert' show Encoding, ascii, jsonEncode, latin1, utf8;
-import 'dart:io'
-    show ContentType, HttpClientRequest, HttpHeaders, systemEncoding;
+import 'dart:convert' show Encoding, jsonEncode, utf8;
+import 'dart:io' show ContentType, HttpClientRequest, HttpHeaders;
 import 'dart:typed_data' show Uint8List;
 
 import 'package:mime/mime.dart' show lookupMimeType;
