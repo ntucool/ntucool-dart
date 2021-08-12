@@ -2,7 +2,7 @@ import '../http/http.dart' show Session;
 import 'common.dart' show Course;
 import 'paginations.dart' show Pagination;
 
-export 'common.dart' show Course;
+export 'common.dart' show Course, Term;
 
 /// List your courses
 ///
@@ -15,18 +15,30 @@ Pagination<Course> getCourses(
   Session session,
   Uri baseUrl, {
   Object? enrollmentType,
+  Object? enrollmentRole,
   Object? enrollmentRoleId,
   Object? enrollmentState,
   Object? excludeBlueprintCourses,
   Object? include,
   Object? state,
-  int? perPage,
   Object? page,
+  int? perPage,
   Object? params,
 }) {
   var method = 'GET';
   var url = '/api/v1/courses';
-  var paramsList = [params];
+  var p = [
+    ['enrollment_type', enrollmentType],
+    ['enrollment_role', enrollmentRole],
+    ['enrollment_role_id', enrollmentRoleId],
+    ['enrollment_state', enrollmentState],
+    ['exclude_blueprint_courses', excludeBlueprintCourses],
+    ['include', include],
+    ['state', state],
+    ['page', page],
+    ['per_page', perPage],
+  ];
+  var paramsList = [p, params];
   return Pagination(
     session,
     method,

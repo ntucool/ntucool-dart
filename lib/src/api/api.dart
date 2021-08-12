@@ -30,19 +30,21 @@ class CoursesInterface with Interface {
 
   Pagination<courses.Course> getCourses({
     Object? enrollmentType,
+    Object? enrollmentRole,
     Object? enrollmentRoleId,
     Object? enrollmentState,
     Object? excludeBlueprintCourses,
     Object? include,
     Object? state,
-    int? perPage,
     Object? page,
+    int? perPage,
     Object? params,
   }) {
     return courses.getCourses(
       session!,
       baseUrl!,
       enrollmentType: enrollmentType,
+      enrollmentRole: enrollmentRole,
       enrollmentRoleId: enrollmentRoleId,
       enrollmentState: enrollmentState,
       excludeBlueprintCourses: excludeBlueprintCourses,
@@ -72,7 +74,7 @@ class UsersInterface with Interface {
     this.baseUrl = baseUrl;
   }
 
-  Future getCustomColors({Object? id, Object? params}) {
+  Future getCustomColors({required Object? id, Object? params}) {
     return users.getCustomColors(session!, baseUrl!, id: id, params: params);
   }
 }
