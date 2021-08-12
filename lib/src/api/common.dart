@@ -1,5 +1,15 @@
-import '../objects.dart' show Base;
+import '../objects.dart' show Base, Simple;
 import '../http/http.dart' show Session;
+
+class Term extends Simple {
+  Term({Map<String, dynamic>? attributes}) {
+    this.attributes = attributes ?? {};
+  }
+  Object? get id => getattr('id');
+  Object? get name => getattr('name');
+  Object? get startAt => getattr('start_at');
+  Object? get endAt => getattr('end_at');
+}
 
 /// https://canvas.instructure.com/doc/api/courses.html#Course
 class Course extends Base {
@@ -91,7 +101,8 @@ class Course extends Base {
 
   /// optional: the enrollment term object for the course returned only if
   /// include[]=term
-  Object? get term => getattr('term');
+  Object? get term => getattr('term',
+      constructor: (attributes) => Term(attributes: attributes));
 
   /// optional: information on progress through the course returned only if
   /// include[]=course_progress
