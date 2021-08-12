@@ -15,7 +15,7 @@ export 'common.dart' show User;
 Future getCustomColors(
   Session session,
   Uri baseUrl, {
-  Object? id,
+  required Object? id,
   Object? params,
 }) async {
   var method = 'GET';
