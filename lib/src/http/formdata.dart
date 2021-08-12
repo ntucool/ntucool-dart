@@ -4,7 +4,6 @@ import 'dart:io' show HttpHeaders;
 import 'package:quiver/collection.dart' show Multimap;
 import 'package:tuple/tuple.dart' show Tuple2, Tuple3;
 
-import 'helpers.dart' show mapToQuery;
 import 'payload.dart' show Payload, StringPayload;
 
 /// Helper class for multipart/form-data and
@@ -81,10 +80,8 @@ class FormData {
 
     var encoding = Encoding.getByName(charset)!;
 
-    return StringPayload(
-        mapToQuery(data.asMap().map((key, value) => MapEntry(key, value))),
-        encoding: encoding,
-        contentType: contentType);
+    return StringPayload(Uri(queryParameters: data.asMap()).query,
+        encoding: encoding, contentType: contentType);
   }
 
   Payload call() {
