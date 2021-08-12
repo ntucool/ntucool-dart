@@ -58,11 +58,33 @@ Future<Tuple2<Response, ApiException?>> request(
     url = url.resolve(reference);
   }
 
-  var params;
+  List<Tuple2<String, String>>? params;
+  if (paramsList == null) {
+    params = null;
+  } else {
+    params = mergeParams(paramsList);
+  }
 
   if (method == 'GET') {
   } else if (method == 'POST' || method == 'PUT') {
-  } else if (method == 'DELETE') {}
+    // For POST and PUT requests, parameters are sent using standard HTML form
+    // encoding (the application/x-www-form-urlencoded content type).
+    //
+    // POST and PUT requests may also optionally be sent in JSON format format.
+    // The content-type of the request must be set to application/json in this
+    // case. There is currently no way to upload a file as part of a JSON POST,
+    // the multipart form type must be used.
+    //
+    // https://canvas.instructure.com/doc/api/index.html
+    if (params != null) {
+      data = params;
+      params = null;
+    }
+
+    // TODO: Add X-CSRF-Token to header.
+  } else if (method == 'DELETE') {
+    // TODO: Add X-CSRF-Token to header.
+  }
 
   var response = await session.openUrl(
     method,
@@ -105,7 +127,7 @@ Future<Tuple2<dynamic, ApiException?>> getJsonFromResponse(
       exception.message = message;
     }
     if (throwException) {
-      throw exception;
+      return Future.error(exception);
     }
   }
   return Tuple2(data, exception);
@@ -172,4 +194,67 @@ String safeToString(Object? object) {
   } catch (_) {
     return Error.safeToString(object);
   }
+}
+
+List<Tuple2<String, String>> resolveParams(Object? params,
+    {bool brackets = false}) {
+  var resolved = <Tuple2<String, String>>[];
+  if (params is Map) {
+    params.forEach((n, v) {
+      var name = n.toString();
+      if (brackets) {
+        name = '[$name]';
+      }
+      var value = resolveParams(v, brackets: true);
+      for (var tmp in value) {
+        resolved.add(Tuple2(name + tmp.item1, tmp.item2));
+      }
+    });
+  } else if (params is Iterable) {
+    for (var v in params) {
+      if (v is Tuple2) {
+        v = [v.item1, v.item2];
+      }
+      String name;
+      List<Tuple2<String, String>> value;
+      if (v is! Map && v is Iterable) {
+        if (v.length != 2) {
+          throw ArgumentError.value(v);
+        }
+        name = v.first.toString();
+        if (brackets) {
+          name = '[$name]';
+        }
+        value = resolveParams(v.last, brackets: true);
+      } else {
+        name = brackets ? '[]' : '';
+        value = resolveParams(v, brackets: true);
+      }
+      for (var tmp in value) {
+        resolved.add(Tuple2(name + tmp.item1, tmp.item2));
+      }
+    }
+  } else if (params == null) {
+  } else {
+    if (params is DateTime) {
+      // With either encoding, all timestamps are sent and returned in ISO 8601
+      // format (UTC time zone):
+      //
+      // YYYY-MM-DDTHH:MM:SSZ
+      //
+      // https://canvas.instructure.com/doc/api/index.html
+      params = params.toUtc().toIso8601String();
+    }
+    resolved.add(Tuple2('', params.toString()));
+  }
+  return resolved;
+}
+
+List<Tuple2<String, String>> mergeParams(Iterable args) {
+  var p = <Tuple2<String, String>>[];
+  for (var element in args) {
+    var params = resolveParams(element);
+    p.addAll(params);
+  }
+  return p;
 }
