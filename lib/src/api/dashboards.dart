@@ -1,12 +1,11 @@
 import '../http/http.dart' show Session;
-import '../objects.dart' show Base;
+import '../objects.dart' show Simple;
 import '../utils.dart' show requestJson;
 
 /// https://github.com/instructure/canvas-lms/blob/master/app/presenters/course_for_menu_presenter.rb
-class DashboardCard extends Base {
-  DashboardCard(
-      {Map<String, dynamic>? attributes, Session? session, Uri? baseUrl})
-      : super(attributes: attributes, session: session, baseUrl: baseUrl);
+class DashboardCard extends Simple {
+  DashboardCard({Map<String, dynamic>? attributes})
+      : super(attributes: attributes);
 
   final List<String> toStringNames = const ['assetString'];
 
@@ -39,9 +38,6 @@ Future<List<DashboardCard>> getDashboardCards(Session session, Uri baseUrl,
     reference: url,
     paramsList: paramsList,
   );
-  var data = [
-    for (var value in tmp.item1)
-      DashboardCard(attributes: value, session: session, baseUrl: baseUrl)
-  ];
+  var data = [for (var value in tmp.item1) DashboardCard(attributes: value)];
   return data;
 }
