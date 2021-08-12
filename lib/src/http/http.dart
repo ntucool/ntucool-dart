@@ -7,10 +7,10 @@ import 'dart:async'
         StreamConsumer,
         StreamSubscription,
         StreamTransformer;
+import 'dart:collection' show LinkedHashMap;
 import 'dart:convert' show Encoding, jsonDecode;
 import 'dart:io'
     show
-        ContentType,
         Cookie,
         HttpClient,
         HttpClientCredentials,
@@ -29,11 +29,12 @@ import 'dart:typed_data' show Uint8List;
 
 import 'package:http/http.dart' show ByteStream;
 import 'package:quiver/collection.dart' show Multimap;
+import 'package:tuple/tuple.dart';
 
 import 'cookiejar.dart' show CookieJar;
 import 'cookies.dart' show BaseCookie, Morsel, SimpleCookie;
 import 'fetch_spec.dart' show isRedirectStatus;
-import 'formdata.dart';
+import 'formdata.dart' show FormData;
 import 'helpers.dart' show encodingForHeaders;
 import 'payload.dart' show BytesPayload, JsonPayload, Payload, StringPayload;
 
@@ -207,7 +208,7 @@ class Response implements HttpClientResponse {
           HttpException;
           // final httpException = error as HttpException;
           // throw ClientException(httpException.message, httpException.uri);
-          throw error;
+          return Future.error(error);
         },
         // test: (error) => error is HttpException,
       ));
@@ -485,21 +486,53 @@ class Session {
 
   void close({bool force = false}) => client.close(force: force);
 
-  Future<Response> request(HttpClientRequest inner,
-      {Object? params,
-      Object? data,
-      Object? json,
-      BaseCookie? cookies,
-      Map<String, String>? headers,
-      bool followRedirects = true,
-      int maxRedirects = 5}) async {
-    var request = Request(this, inner);
+  Future<Response> requestUrl(
+    String method,
+    Uri url, {
+    Object? params,
+    Object? data,
+    Object? json,
+    BaseCookie? cookies,
+    Map<String, String>? headers,
+    bool followRedirects = true,
+    int maxRedirects = 5,
+  }) async {
+    // Handle params.
+    if (params != null) {
+      var queryParameters = LinkedHashMap<String, dynamic>();
+      url.queryParametersAll.forEach((key, value) {
+        queryParameters[key] = value;
+      });
+      if (params is Map) {
+        params.forEach((key, value) {
+          queryParameters[key.toString()] = value;
+        });
+      } else if (params is Iterable) {
+        for (var element in params) {
+          if (element is Tuple2) {
+            queryParameters[element.item1.toString()] = element.item2;
+          } else if (element is Iterable) {
+            if (element.length != 2) {
+              return Future.error(ArgumentError.value(element));
+            }
+            queryParameters[element.first.toString()] = element.last;
+          }
+        }
+      } else {
+        return Future.error(ArgumentError.value(params));
+      }
+      if (queryParameters.isNotEmpty) {
+        url = url.replace(queryParameters: queryParameters);
+      }
+    }
+
+    var request = Request(this, await client.openUrl(method, url));
 
     // print(['cookieJar', cookieJar]);
 
     if (data != null && json != null) {
-      throw ArgumentError(
-          "data and json parameters can not be used at the same time");
+      return Future.error(ArgumentError(
+          "data and json parameters can not be used at the same time"));
     } else if (json != null) {
       data = JsonPayload(json);
     }
@@ -523,7 +556,7 @@ class Session {
 
     var response = await request.close();
     // print(request.headers);
-    print(response.redirects.length);
+    print([response.redirects.length, response.request.uri]);
     _updateCookiesFromResponse(cookieJar, response, request.uri);
     // print(['cookieJar', cookieJar]);
 
@@ -539,7 +572,7 @@ class Session {
           request.cookies.addAll(allCookies.values);
           return request.close();
         });
-        print(response.redirects.length);
+        print([response.redirects.length, response.request.uri]);
         _updateCookiesFromResponse(cookieJar, response, response.request.uri);
         // print(['cookieJar', cookieJar]);
       } else {
@@ -552,178 +585,28 @@ class Session {
     return response;
   }
 
-  Future<Response> delete(String host, int port, String path,
-          {Object? data,
-          Object? json,
-          BaseCookie? cookies,
-          Map<String, String>? headers,
-          bool followRedirects = true,
-          int maxRedirects = 5}) async =>
-      request(await client.delete(host, port, path),
-          data: data,
-          json: json,
-          cookies: cookies,
-          headers: headers,
-          followRedirects: followRedirects,
-          maxRedirects: maxRedirects);
-
-  Future<Response> deleteUrl(Uri url,
-          {Object? data,
-          Object? json,
-          BaseCookie? cookies,
-          Map<String, String>? headers,
-          bool followRedirects = true,
-          int maxRedirects = 5}) async =>
-      request(await client.deleteUrl(url),
-          data: data,
-          json: json,
-          cookies: cookies,
-          headers: headers,
-          followRedirects: followRedirects,
-          maxRedirects: maxRedirects);
-
-  set findProxy(String Function(Uri url)? f) => client.findProxy = f;
-
-  Future<Response> get(String host, int port, String path,
-          {Object? data,
-          Object? json,
-          BaseCookie? cookies,
-          Map<String, String>? headers,
-          bool followRedirects = true,
-          int maxRedirects = 5}) async =>
-      request(await client.get(host, port, path),
-          data: data,
-          json: json,
-          cookies: cookies,
-          headers: headers,
-          followRedirects: followRedirects,
-          maxRedirects: maxRedirects);
-
-  Future<Response> getUrl(Uri url,
-          {Object? data,
-          Object? json,
-          BaseCookie? cookies,
-          Map<String, String>? headers,
-          bool followRedirects = true,
-          int maxRedirects = 5}) async =>
-      request(await client.getUrl(url),
-          data: data,
-          json: json,
-          cookies: cookies,
-          headers: headers,
-          followRedirects: followRedirects,
-          maxRedirects: maxRedirects);
-
-  Future<Response> head(String host, int port, String path) {
-    // TODO: implement head
-    throw UnimplementedError();
-  }
-
-  Future<Response> headUrl(Uri url) {
-    // TODO: implement headUrl
-    throw UnimplementedError();
-  }
-
-  Future<Response> open(String method, String host, int port, String path,
-          {Object? data,
-          Object? json,
-          BaseCookie? cookies,
-          Map<String, String>? headers,
-          bool followRedirects = true,
-          int maxRedirects = 5}) async =>
-      request(await client.open(method, host, port, path),
-          data: data,
-          json: json,
-          cookies: cookies,
-          headers: headers,
-          followRedirects: followRedirects,
-          maxRedirects: maxRedirects);
-
-  Future<Response> openUrl(String method, Uri url,
-          {Object? params,
-          Object? data,
-          Object? json,
-          BaseCookie? cookies,
-          Map<String, String>? headers,
-          bool followRedirects = true,
-          int maxRedirects = 5}) async =>
-      request(await client.openUrl(method, url),
-          data: data,
-          json: json,
-          cookies: cookies,
-          headers: headers,
-          followRedirects: followRedirects,
-          maxRedirects: maxRedirects);
-
-  Future<Response> patch(String host, int port, String path) {
-    // TODO: implement patch
-    throw UnimplementedError();
-  }
-
-  Future<Response> patchUrl(Uri url) {
-    // TODO: implement patchUrl
-    throw UnimplementedError();
-  }
-
-  Future<Response> post(String host, int port, String path,
-          {Object? data,
-          Object? json,
-          BaseCookie? cookies,
-          Map<String, String>? headers,
-          bool followRedirects = true,
-          int maxRedirects = 5}) async =>
-      request(await client.post(host, port, path),
-          data: data,
-          json: json,
-          cookies: cookies,
-          headers: headers,
-          followRedirects: followRedirects,
-          maxRedirects: maxRedirects);
-
-  Future<Response> postUrl(Uri url,
-          {Object? data,
-          Object? json,
-          BaseCookie? cookies,
-          Map<String, String>? headers,
-          bool followRedirects = true,
-          int maxRedirects = 5}) async =>
-      request(await client.postUrl(url),
-          data: data,
-          json: json,
-          cookies: cookies,
-          headers: headers,
-          followRedirects: followRedirects,
-          maxRedirects: maxRedirects);
-
-  Future<Response> put(String host, int port, String path,
-          {Object? data,
-          Object? json,
-          BaseCookie? cookies,
-          Map<String, String>? headers,
-          bool followRedirects = true,
-          int maxRedirects = 5}) async =>
-      request(await client.put(host, port, path),
-          data: data,
-          json: json,
-          cookies: cookies,
-          headers: headers,
-          followRedirects: followRedirects,
-          maxRedirects: maxRedirects);
-
-  Future<Response> putUrl(Uri url,
-          {Object? data,
-          Object? json,
-          BaseCookie? cookies,
-          Map<String, String>? headers,
-          bool followRedirects = true,
-          int maxRedirects = 5}) async =>
-      request(await client.putUrl(url),
-          data: data,
-          json: json,
-          cookies: cookies,
-          headers: headers,
-          followRedirects: followRedirects,
-          maxRedirects: maxRedirects);
+  Future<Response> openUrl(
+    String method,
+    Uri url, {
+    Object? params,
+    Object? data,
+    Object? json,
+    BaseCookie? cookies,
+    Map<String, String>? headers,
+    bool followRedirects = true,
+    int maxRedirects = 5,
+  }) async =>
+      requestUrl(
+        method,
+        url,
+        params: params,
+        data: data,
+        json: json,
+        cookies: cookies,
+        headers: headers,
+        followRedirects: followRedirects,
+        maxRedirects: maxRedirects,
+      );
 }
 
 Future<Response> _redirect(Session session, Request request, Response response,
@@ -752,7 +635,8 @@ Future<Response> _redirect(Session session, Request request, Response response,
   if (url == null) {
     String? location = response.headers.value(HttpHeaders.locationHeader);
     if (location == null) {
-      throw StateError("Response has no Location header for redirect");
+      return Future.error(
+          StateError("Response has no Location header for redirect"));
     }
     url = Uri.parse(location);
   }
