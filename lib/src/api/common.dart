@@ -1,6 +1,7 @@
 import '../objects.dart' show Base, Simple;
 import '../http/http.dart' show Session;
 
+/// https://canvas.instructure.com/doc/api/courses.html#Term
 class Term extends Simple {
   Term({Map<String, dynamic>? attributes}) {
     this.attributes = attributes ?? {};
@@ -159,6 +160,69 @@ class Course extends Base {
   /// optional: whether the course is set as a template (requires the Course
   /// Templates feature)
   Object? get template => getattr('template');
+
+  Object? get overriddenCourseVisibility =>
+      getattr('overridden_course_visibility');
+
+  /// "sections": Section enrollment information to include with each Course. Returns an
+  /// array of hashes containing the section ID (id), section name (name), start and end
+  /// dates (start_at, end_at), as well as the enrollment type (enrollment_role, e.g.
+  /// 'StudentEnrollment').
+  ///
+  /// https://canvas.instructure.com/doc/api/courses.html#method.courses.index
+  Object? get sections => getattr('sections');
+
+  /// "passback_status": Include the grade passback_status
+  ///
+  /// https://canvas.instructure.com/doc/api/courses.html#method.courses.index
+  Object? get passbackStatus => getattr('passback_status');
+
+  /// include[]=current_grading_period_scores
+  Object? get hasGradingPeriods => getattr('has_grading_periods');
+
+  /// include[]=current_grading_period_scores
+  Object? get multipleGradingPeriodsEnabled =>
+      getattr('multiple_grading_periods_enabled');
+
+  /// include[]=current_grading_period_scores
+  Object? get hasWeightedGradingPeriods =>
+      getattr('has_weighted_grading_periods');
+
+  /// "account": Optional information to include with each Course. When account is given,
+  /// the account json for each course is returned.
+  ///
+  /// https://canvas.instructure.com/doc/api/courses.html#method.courses.index
+  Object? get account => getattr('account');
+
+  /// "favorites": Optional information to include with each Course. Indicates if the user has
+  /// marked the course as a favorite course.
+  ///
+  /// https://canvas.instructure.com/doc/api/courses.html#method.courses.index
+  Object? get isFavorite => getattr('is_favorite');
+
+  /// "teachers": Teacher information to include with each Course. Returns an array of
+  /// hashes containing the UserDisplay information for each teacher in the course.
+  ///
+  /// https://canvas.instructure.com/doc/api/courses.html#method.courses.index
+  Object? get teachers => getattr('teachers');
+
+  /// "course_image": Optional course image data for when there is a course image and the
+  /// course image feature flag has been enabled
+  ///
+  /// https://canvas.instructure.com/doc/api/courses.html#method.courses.index
+  Object? get imageDownloadUrl => getattr('image_download_url');
+
+  /// "concluded": Optional information to include with each Course. Indicates whether the
+  /// course has been concluded, taking course and term dates into account.
+  ///
+  /// https://canvas.instructure.com/doc/api/courses.html#method.courses.index
+  Object? get concluded => getattr('concluded');
+
+  /// "tabs": Optional information to include with each Course. Will include the list of tabs
+  /// configured for each course. See the List available tabs API for more information.
+  ///
+  /// https://canvas.instructure.com/doc/api/courses.html#method.courses.index
+  Object? get tabs => getattr('tabs');
 }
 
 /// A Canvas user, e.g. a student, teacher, administrator, observer, etc.

@@ -30,7 +30,7 @@ class CompleterLock {
 }
 
 class FutureChainLock {
-  Future? _future = Future.value(null);
+  Future _future = Future.value(null);
 
   Future<T> acquire<T>(FutureOr<T> computation()) {
     var previous = _future;

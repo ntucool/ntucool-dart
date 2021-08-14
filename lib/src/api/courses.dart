@@ -1,4 +1,5 @@
 import '../http/http.dart' show Session;
+import '../utils.dart' show requestJson;
 import 'common.dart' show Course;
 import 'paginations.dart' show Pagination;
 
@@ -48,4 +49,47 @@ Pagination<Course> getCourses(
     constructor: (value) =>
         Course(attributes: value, session: session, baseUrl: baseUrl),
   );
+}
+
+/// Get a single course
+///
+/// `GET /api/v1/courses/:id`
+///
+/// `GET /api/v1/accounts/:account_id/courses/:id`
+///
+/// Return information on a single course.
+///
+/// Accepts the same include[] parameters as the list action plus:
+///
+/// https://canvas.instructure.com/doc/api/courses.html#method.courses.show
+Future<Course> getCourse(
+  Session session,
+  Uri baseUrl, {
+  required Object id,
+  Object? accountId,
+  Object? include,
+  int? teacherLimit,
+  Object? params,
+}) async {
+  var method = 'GET';
+  String url;
+  if (accountId == null) {
+    url = '/api/v1/courses/$id';
+  } else {
+    url = '/api/v1/accounts/$accountId/courses/$id';
+  }
+  var p = [
+    ['include', include],
+    ['teacher_limit', teacherLimit],
+  ];
+  var paramsList = [p, params];
+  var tmp = await requestJson(
+    session,
+    method,
+    baseUrl,
+    reference: url,
+    paramsList: paramsList,
+  );
+  var data = tmp.item1;
+  return Course(attributes: data, session: session, baseUrl: baseUrl);
 }

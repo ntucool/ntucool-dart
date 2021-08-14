@@ -499,23 +499,40 @@ class Session {
   }) async {
     // Handle params.
     if (params != null) {
-      var queryParameters = LinkedHashMap<String, dynamic>();
+      var queryParameters = LinkedHashMap<String, List<String>>();
       url.queryParametersAll.forEach((key, value) {
-        queryParameters[key] = value;
+        if (!queryParameters.containsKey(key)) {
+          queryParameters[key] = [];
+        }
+        queryParameters[key]!.addAll(value);
       });
       if (params is Map) {
         params.forEach((key, value) {
-          queryParameters[key.toString()] = value;
+          var name = key.toString();
+          if (!queryParameters.containsKey(name)) {
+            queryParameters[name] = [];
+          }
+          queryParameters[name]!.add(value.toString());
         });
       } else if (params is Iterable) {
         for (var element in params) {
           if (element is Tuple2) {
-            queryParameters[element.item1.toString()] = element.item2;
+            var name = element.item1.toString();
+            var value = element.item2.toString();
+            if (!queryParameters.containsKey(name)) {
+              queryParameters[name] = [];
+            }
+            queryParameters[name]!.add(value);
           } else if (element is Iterable) {
             if (element.length != 2) {
               return Future.error(ArgumentError.value(element));
             }
-            queryParameters[element.first.toString()] = element.last;
+            var name = element.first.toString();
+            var value = element.last.toString();
+            if (!queryParameters.containsKey(name)) {
+              queryParameters[name] = [];
+            }
+            queryParameters[name]!.add(value);
           }
         }
       } else {

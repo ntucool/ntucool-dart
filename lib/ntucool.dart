@@ -17,6 +17,7 @@ import 'src/utils.dart' show addParameterBySelectors;
 export 'src/api/dashboards.dart' show DashboardCard;
 export 'src/api/courses.dart' show Course, Term;
 export 'src/api/paginations.dart' show Pagination;
+export 'src/api/tabs.dart' show Tab;
 export 'src/objects.dart' show sentinel;
 
 class Client with Interface {
@@ -165,7 +166,7 @@ main(List<String> args) async {
     }
   }
 
-  var courses = client.api.courses.getCourses(include: ['term']);
+  // var courses = client.api.courses.getCourses(include: ['term']);
   // courses.listen((event) {
   //   print([0, event]);
   // });
@@ -197,26 +198,26 @@ main(List<String> args) async {
   // courses.elementAt(10).then((value) => print(value), onError: (e) {
   //   print(e);
   // });
-  try {
-    courses.elementAt(10).then((value) => print(value), onError: (e) {
-      print(['onError', e]);
-    });
-    print(await courses.elementAt(10));
-  } on RangeError catch (e) {
-    print(['catch', e]);
-  }
+  // try {
+  //   courses.elementAt(10).then((value) => print(value), onError: (e) {
+  //     print(['onError', e]);
+  //   });
+  //   print(await courses.elementAt(10));
+  // } on RangeError catch (e) {
+  //   print(['catch', e]);
+  // }
   // print(await courses.first);
   // print(await courses.first);
   // courses.listen((event) {
   //   print([-1, event]);
   // });
-  courses.listen((event) {
-    print([0, event]);
-  }, onDone: () {
-    courses.listen((event) {
-      print([1, event]);
-    });
-  });
+  // courses.listen((event) {
+  //   print([0, event]);
+  // }, onDone: () {
+  //   courses.listen((event) {
+  //     print([1, event]);
+  //   });
+  // });
   // print(await courses.elementAt(0));
   // print(await courses.elementAt(3));
   // print(await courses.elementAt(3));
@@ -227,6 +228,16 @@ main(List<String> args) async {
   //   print(courses.values);
   // });
 
+  var course =
+      await client.api.courses.getCourse(id: 5041, include: ['syllabus_body']);
+  print(course.syllabusBody);
+
+  // var tabs =
+  //     client.api.tabs.getAvailableTabs(context: 'courses', contextId: 3388);
+  // await for (var tab in tabs) {
+  //   print(tab.attributes);
+  // }
+
   // var dashboardCards = await client.getDashboardCards();
   // print(dashboardCards);
 
@@ -236,5 +247,5 @@ main(List<String> args) async {
   var cookies = client.session.cookieJar.filterCookies(client.baseUrl);
   var file = File('../credentials/cookies.json');
   file.writeAsStringSync(jsonEncode(cookies));
-  // client.close();
+  client.close();
 }
