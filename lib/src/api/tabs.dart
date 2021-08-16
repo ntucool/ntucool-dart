@@ -43,7 +43,7 @@ Pagination<Tab> getAvailableTabs(
   Session session,
   Uri baseUrl, {
   required String context,
-  required Object contextId,
+  required Object? contextId,
   Object? include,
   Object? page,
   int? perPage,

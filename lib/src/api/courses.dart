@@ -132,7 +132,7 @@ Pagination<User> listUsersInCourse(
 Future<Course> getCourse(
   Session session,
   Uri baseUrl, {
-  required Object id,
+  required Object? id,
   Object? accountId,
   Object? include,
   Object? teacherLimit,

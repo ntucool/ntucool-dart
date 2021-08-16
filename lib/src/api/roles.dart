@@ -3,6 +3,7 @@ import '../objects.dart' show Base;
 import '../utils.dart' show requestJson;
 import 'paginations.dart' show Pagination;
 
+/// https://canvas.instructure.com/doc/api/roles.html#Role
 class Role extends Base {
   Role({Map<String, dynamic>? attributes, Session? session, Uri? baseUrl})
       : super(attributes: attributes, session: session, baseUrl: baseUrl);

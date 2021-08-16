@@ -1,6 +1,7 @@
 import '../http/http.dart' as http;
 import '../objects.dart' as objects;
 
+/// https://canvas.instructure.com/doc/api/enrollments.html#Enrollment
 class Enrollment extends objects.Base {
   Enrollment(
       {Map<String, dynamic>? attributes, http.Session? session, Uri? baseUrl})

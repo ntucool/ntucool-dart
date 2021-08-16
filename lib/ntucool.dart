@@ -17,6 +17,7 @@ import 'src/utils.dart' as utils;
 export 'src/api/courses.dart' show Course, Term;
 export 'src/api/dashboards.dart' show DashboardCard;
 export 'src/api/enrollments.dart' show Enrollment;
+export 'src/api/files.dart' show File;
 export 'src/api/js_env.dart' show JsEnv;
 export 'src/api/paginations.dart' show Pagination;
 export 'src/api/tabs.dart' show Tab;
@@ -149,5 +150,3 @@ class Client with Interface {
 
   void close({bool force = false}) => session.close();
 }
-
-main(List<String> args) async {}

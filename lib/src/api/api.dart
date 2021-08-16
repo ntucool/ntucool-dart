@@ -1,27 +1,30 @@
-import '../http/http.dart' show Session;
-import '../objects.dart' show Interface;
+import '../http/http.dart' as http;
+import '../objects.dart' as objects;
 import 'courses.dart' as courses;
 import 'dashboards.dart' as dashboards;
+import 'files.dart' as files;
 import 'js_env.dart' as js_env;
-import 'paginations.dart' show Pagination;
+import 'paginations.dart' as paginations;
 import 'roles.dart' as roles;
 import 'tabs.dart' as tabs;
 import 'users.dart' as users;
 
 // https://github.com/instructure/canvas-lms/blob/master/config/routes.rb
 
-class Api with Interface {
+class Api with objects.Interface {
   var courses = CoursesInterface();
   var dashboards = DashboardsInterface();
+  var files = FilesInterface();
   var roles = RolesInterface();
   var tabs = TabsInterface();
   var users = UsersInterface();
   var jsEnv = JsEnvInterface();
 
-  Api({Session? session, Uri? baseUrl}) {
+  Api({http.Session? session, Uri? baseUrl}) {
     this.subInterfaces.addAll([
       courses,
       dashboards,
+      files,
       roles,
       tabs,
       users,
@@ -32,13 +35,13 @@ class Api with Interface {
   }
 }
 
-class CoursesInterface with Interface {
-  CoursesInterface({Session? session, Uri? baseUrl}) {
+class CoursesInterface with objects.Interface {
+  CoursesInterface({http.Session? session, Uri? baseUrl}) {
     this.session = session;
     this.baseUrl = baseUrl;
   }
 
-  Pagination<courses.Course> listCourses({
+  paginations.Pagination<courses.Course> listCourses({
     Object? enrollmentType,
     Object? enrollmentRole,
     Object? enrollmentRoleId,
@@ -67,7 +70,7 @@ class CoursesInterface with Interface {
   }
 
   Future<courses.Course> getCourse({
-    required Object id,
+    required Object? id,
     Object? accountId,
     Object? include,
     Object? teacherLimit,
@@ -84,7 +87,7 @@ class CoursesInterface with Interface {
     );
   }
 
-  Pagination<users.User> listUsersInCourse({
+  paginations.Pagination<users.User> listUsersInCourse({
     required Object? courseId,
     String endpoint = 'users',
     Object? searchTerm,
@@ -120,8 +123,8 @@ class CoursesInterface with Interface {
     );
   }
 
-  Pagination<tabs.Tab> getAvailableTabs({
-    required Object id,
+  paginations.Pagination<tabs.Tab> getAvailableTabs({
+    required Object? id,
     Object? include,
     Object? page,
     int? perPage,
@@ -140,8 +143,8 @@ class CoursesInterface with Interface {
   }
 }
 
-class DashboardsInterface with Interface {
-  DashboardsInterface({Session? session, Uri? baseUrl}) {
+class DashboardsInterface with objects.Interface {
+  DashboardsInterface({http.Session? session, Uri? baseUrl}) {
     this.session = session;
     this.baseUrl = baseUrl;
   }
@@ -151,13 +154,13 @@ class DashboardsInterface with Interface {
   }
 }
 
-class RolesInterface with Interface {
-  RolesInterface({Session? session, Uri? baseUrl}) {
+class RolesInterface with objects.Interface {
+  RolesInterface({http.Session? session, Uri? baseUrl}) {
     this.session = session;
     this.baseUrl = baseUrl;
   }
 
-  Pagination<roles.Role> listRoles({
+  paginations.Pagination<roles.Role> listRoles({
     required Object? accountId,
     Object? state,
     Object? showInherited,
@@ -194,15 +197,54 @@ class RolesInterface with Interface {
   }
 }
 
-class TabsInterface with Interface {
-  TabsInterface({Session? session, Uri? baseUrl}) {
+class FilesInterface with objects.Interface {
+  FilesInterface({http.Session? session, Uri? baseUrl}) {
     this.session = session;
     this.baseUrl = baseUrl;
   }
 
-  Pagination<tabs.Tab> getAvailableTabs({
+  paginations.Pagination<files.File> listFiles({
     required String context,
-    required Object contextId,
+    required Object? contextId,
+    Object? contentTypes,
+    Object? excludeContentTypes,
+    Object? searchTerm,
+    Object? include,
+    Object? only,
+    Object? sort,
+    Object? order,
+    Object? page,
+    int? perPage,
+    Object? params,
+  }) {
+    return files.listFiles(
+      session!,
+      baseUrl!,
+      context: context,
+      contextId: contextId,
+      contentTypes: contentTypes,
+      excludeContentTypes: excludeContentTypes,
+      searchTerm: searchTerm,
+      include: include,
+      only: only,
+      sort: sort,
+      order: order,
+      page: page,
+      perPage: perPage,
+      params: params,
+    );
+  }
+}
+
+class TabsInterface with objects.Interface {
+  TabsInterface({http.Session? session, Uri? baseUrl}) {
+    this.session = session;
+    this.baseUrl = baseUrl;
+  }
+
+  paginations.Pagination<tabs.Tab> getAvailableTabs({
+    required String context,
+    required Object? contextId,
     Object? include,
     Object? page,
     int? perPage,
@@ -221,8 +263,8 @@ class TabsInterface with Interface {
   }
 }
 
-class UsersInterface with Interface {
-  UsersInterface({Session? session, Uri? baseUrl}) {
+class UsersInterface with objects.Interface {
+  UsersInterface({http.Session? session, Uri? baseUrl}) {
     this.session = session;
     this.baseUrl = baseUrl;
   }
@@ -232,8 +274,8 @@ class UsersInterface with Interface {
   }
 }
 
-class JsEnvInterface with Interface {
-  JsEnvInterface({Session? session, Uri? baseUrl}) {
+class JsEnvInterface with objects.Interface {
+  JsEnvInterface({http.Session? session, Uri? baseUrl}) {
     this.session = session;
     this.baseUrl = baseUrl;
   }
