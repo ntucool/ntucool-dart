@@ -1,5 +1,6 @@
 import '../objects.dart' show Base, Simple;
 import '../http/http.dart' show Session;
+import 'enrollments.dart' as enrollments_api;
 
 /// https://canvas.instructure.com/doc/api/courses.html#Term
 class Term extends Simple {
@@ -102,8 +103,10 @@ class Course extends Base {
 
   /// optional: the enrollment term object for the course returned only if
   /// include[]=term
-  Object? get term => getattr('term',
-      constructor: (attributes) => Term(attributes: attributes));
+  Object? get term => getattr(
+        'term',
+        constructor: (attributes) => Term(attributes: attributes),
+      );
 
   /// optional: information on progress through the course returned only if
   /// include[]=course_progress
@@ -271,7 +274,12 @@ class User extends Base {
   /// Optional: This field can be requested with certain API calls, and will return
   /// a list of the users active enrollments. See the List enrollments API for more
   /// details about the format of these records.
-  Object? get enrollments => getattr('enrollments');
+  Object? get enrollments => getattr(
+        'enrollments',
+        constructor: (attributes) => enrollments_api.Enrollment(
+            attributes: attributes, session: session, baseUrl: baseUrl),
+        isList: true,
+      );
 
   /// Optional: This field can be requested with certain API calls, and will return
   /// the users primary email address.
