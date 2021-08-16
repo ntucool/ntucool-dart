@@ -166,36 +166,6 @@ Future<Tuple3<dynamic, Response, ApiException?>> requestJson(
   return Tuple3(value, response, exception);
 }
 
-String safeToString(Object? object) {
-  if (object is num || object is bool || null == object) {
-    return object.toString();
-  }
-  if (object is String) {
-    return Error.safeToString(object);
-  }
-  if (object is List) {
-    return "${object.runtimeType}([${object.map((e) => safeToString(e)).join(', ')}])";
-  }
-  if (object is Set) {
-    return "${object.runtimeType}({${object.map((e) => safeToString(e)).join(', ')}})";
-  }
-  // if (object is Map) {
-  //   var info = <String>[];
-  //   object.forEach((key, value) {
-  //     info.add('${safeToString(key)}: ${safeToString(value)}');
-  //   });
-  //   return "${object.runtimeType}({${info.join(', ')}})";
-  // }
-  // if (object is Iterable) {
-  //   return "${object.runtimeType}([${object.map((e) => safeToString(e)).join(', ')}])";
-  // }
-  try {
-    return object.toString();
-  } catch (_) {
-    return Error.safeToString(object);
-  }
-}
-
 List<Tuple2<String, String>> resolveParams(Object? params,
     {bool brackets = false}) {
   var resolved = <Tuple2<String, String>>[];
@@ -257,4 +227,51 @@ List<Tuple2<String, String>> mergeParams(Iterable args) {
     p.addAll(params);
   }
   return p;
+}
+
+final escapeAscii = RegExp(r'([\\"]|[^\ -~])');
+const escapeMap = {
+  '\\': '\\\\',
+  '"': '\\"',
+  '\b': '\\b',
+  '\f': '\\f',
+  '\n': '\\n',
+  '\r': '\\r',
+  '\t': '\\t',
+};
+
+/// https://docs.python.org/3/library/re.html#re.sub
+String sub(Pattern pattern, String repl(Match matchobj), String string) {
+  var matches = pattern.allMatches(string);
+  var parts = [];
+  var start = 0;
+  for (var match in matches) {
+    parts.add(string.substring(start, match.start));
+    parts.add(repl(match));
+    start = match.end;
+  }
+  parts.add(string.substring(start));
+  return parts.join();
+}
+
+/// Return an ASCII-only JSON representation of a Dart string
+encodeBasestringAscii(String s) {
+  var replace = (Match match) {
+    var s = match.group(0)!;
+    var value = escapeMap[s];
+    if (value != null) {
+      return value;
+    }
+    var n = s.runes.single;
+    if (n < 0x10000) {
+      return '\\u${n.toRadixString(16).padLeft(4, '0')}';
+    } else {
+      // surrogate pair
+      n -= 0x10000;
+      var s1 = 0xd800 | ((n >> 10) & 0x3ff);
+      var s2 = 0xdc00 | (n & 0x3ff);
+      return '\\u${s1.toRadixString(16).padLeft(4, '0')}\\u${s2.toRadixString(16).padLeft(4, '0')}';
+    }
+  };
+  return '"' + sub(escapeAscii, replace, s) + '"';
 }
