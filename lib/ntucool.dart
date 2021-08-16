@@ -10,14 +10,17 @@ import 'src/api/api.dart' show Api;
 import 'src/exceptions.dart' show RuntimeException;
 import 'src/http/cookies.dart' show SimpleCookie;
 import 'src/http/http.dart' show Session;
-import 'src/lock.dart';
+import 'src/lock.dart' show FutureChainLock;
 import 'src/objects.dart' show Interface;
-import 'src/utils.dart' show addParameterBySelectors;
+import 'src/utils.dart' as utils;
 
-export 'src/api/dashboards.dart' show DashboardCard;
 export 'src/api/courses.dart' show Course, Term;
+export 'src/api/dashboards.dart' show DashboardCard;
+export 'src/api/enrollments.dart' show Enrollment;
+export 'src/api/js_env.dart' show JsEnv;
 export 'src/api/paginations.dart' show Pagination;
 export 'src/api/tabs.dart' show Tab;
+export 'src/api/users.dart' show User;
 export 'src/objects.dart' show sentinel;
 
 class Client with Interface {
@@ -90,7 +93,7 @@ class Client with Interface {
       HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded'
     };
     var map = LinkedHashMap<String, String>();
-    addParameterBySelectors(
+    utils.addParameterBySelectors(
         document,
         map,
         LinkedHashMap.fromIterables([
@@ -132,7 +135,7 @@ class Client with Interface {
     url = response.uri.resolve(action);
 
     map = LinkedHashMap<String, String>();
-    addParameterBySelectors(
+    utils.addParameterBySelectors(
         document,
         map,
         LinkedHashMap.fromIterables(
@@ -147,105 +150,4 @@ class Client with Interface {
   void close({bool force = false}) => session.close();
 }
 
-main(List<String> args) async {
-  var client = Client();
-
-  if (args.isNotEmpty) {
-    var file = File(args.first);
-    var data = jsonDecode(file.readAsStringSync());
-    if (data is Map<String, dynamic>) {
-      if (data.containsKey('username') && data.containsKey('password')) {
-        var username = data['username'];
-        var password = data['password'];
-        var ok = await client.saml(username, password);
-        assert(ok == true);
-      } else {
-        var cookies = SimpleCookie.fromJson(data);
-        client.session.cookieJar.updateCookies(cookies);
-      }
-    }
-  }
-
-  // var courses = client.api.courses.getCourses(include: ['term']);
-  // courses.listen((event) {
-  //   print([0, event]);
-  // });
-  // courses.stream.length
-  //     .then((value) => print(['courses.stream.length', value]));
-  // var a = courses.stream;
-  // var b = courses.stream;
-  // a.first.then((value) => print(['first', value]));
-  // b.first.then((value) => print(['first', value]));
-  // courses.listen((event) {
-  //   print([1, event]);
-  // });
-  // print(courses[0]);
-  // print(await courses.length);
-  // print(await courses.length);
-  // courses.length.then((value) => print(value));
-  // courses.last.then((value) {
-  //   print(value);
-  // }).catchError((e) {
-  //   print(['error', e]);
-  // }, test: (e) => e is StateError && e.message == 'Client is closed');
-  // courses.elementAt(10).then((value) => print(value));
-  // print(await courses.elementAt(0));
-  // courses.elementAt(0).then((value) => print(value));
-  // courses.length.then((value) => print(value));
-  // print(await courses.elementAt(0));
-  // courses.first.then((value) => print(value));
-  // courses.first.then((value) => print(value));
-  // courses.elementAt(10).then((value) => print(value), onError: (e) {
-  //   print(e);
-  // });
-  // try {
-  //   courses.elementAt(10).then((value) => print(value), onError: (e) {
-  //     print(['onError', e]);
-  //   });
-  //   print(await courses.elementAt(10));
-  // } on RangeError catch (e) {
-  //   print(['catch', e]);
-  // }
-  // print(await courses.first);
-  // print(await courses.first);
-  // courses.listen((event) {
-  //   print([-1, event]);
-  // });
-  // courses.listen((event) {
-  //   print([0, event]);
-  // }, onDone: () {
-  //   courses.listen((event) {
-  //     print([1, event]);
-  //   });
-  // });
-  // print(await courses.elementAt(0));
-  // print(await courses.elementAt(3));
-  // print(await courses.elementAt(3));
-  // courses.toList().then((value) => print(value));
-  // courses.listen((event) {
-  //   print(['event', event]);
-  // }, onDone: () {
-  //   print(courses.values);
-  // });
-
-  var course =
-      await client.api.courses.getCourse(id: 5041, include: ['syllabus_body']);
-  print(course.syllabusBody);
-
-  // var tabs =
-  //     client.api.tabs.getAvailableTabs(context: 'courses', contextId: 3388);
-  // await for (var tab in tabs) {
-  //   print(tab.attributes);
-  // }
-
-  // var dashboardCards = await client.getDashboardCards();
-  // print(dashboardCards);
-
-  // var customColors = await client.api.users.getCustomColors(id: 'self');
-  // print(customColors);
-
-  var cookies = client.session.cookieJar.filterCookies(client.baseUrl);
-  var file = File('../credentials/cookies.json');
-  file.writeAsStringSync(jsonEncode(cookies));
-  client.close();
-}
+main(List<String> args) async {}

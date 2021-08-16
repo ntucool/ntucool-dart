@@ -2,7 +2,9 @@ import '../http/http.dart' show Session;
 import '../objects.dart' show Interface;
 import 'courses.dart' as courses;
 import 'dashboards.dart' as dashboards;
+import 'js_env.dart' as js_env;
 import 'paginations.dart' show Pagination;
+import 'roles.dart' as roles;
 import 'tabs.dart' as tabs;
 import 'users.dart' as users;
 
@@ -11,15 +13,19 @@ import 'users.dart' as users;
 class Api with Interface {
   var courses = CoursesInterface();
   var dashboards = DashboardsInterface();
+  var roles = RolesInterface();
   var tabs = TabsInterface();
   var users = UsersInterface();
+  var jsEnv = JsEnvInterface();
 
   Api({Session? session, Uri? baseUrl}) {
     this.subInterfaces.addAll([
       courses,
       dashboards,
+      roles,
       tabs,
       users,
+      jsEnv,
     ]);
     this.session = session;
     this.baseUrl = baseUrl;
@@ -32,7 +38,7 @@ class CoursesInterface with Interface {
     this.baseUrl = baseUrl;
   }
 
-  Pagination<courses.Course> getCourses({
+  Pagination<courses.Course> listCourses({
     Object? enrollmentType,
     Object? enrollmentRole,
     Object? enrollmentRoleId,
@@ -44,7 +50,7 @@ class CoursesInterface with Interface {
     int? perPage,
     Object? params,
   }) {
-    return courses.getCourses(
+    return courses.listCourses(
       session!,
       baseUrl!,
       enrollmentType: enrollmentType,
@@ -64,7 +70,7 @@ class CoursesInterface with Interface {
     required Object id,
     Object? accountId,
     Object? include,
-    int? teacherLimit,
+    Object? teacherLimit,
     Object? params,
   }) {
     return courses.getCourse(
@@ -74,6 +80,42 @@ class CoursesInterface with Interface {
       accountId: accountId,
       include: include,
       teacherLimit: teacherLimit,
+      params: params,
+    );
+  }
+
+  Pagination<users.User> listUsersInCourse({
+    required Object? courseId,
+    String endpoint = 'users',
+    Object? searchTerm,
+    Object? sort,
+    Object? enrollmentType,
+    Object? enrollmentRole,
+    Object? enrollmentRoleId,
+    Object? include,
+    Object? userId,
+    Object? userIds,
+    Object? enrollmentState,
+    Object? page,
+    int? perPage,
+    Object? params,
+  }) {
+    return courses.listUsersInCourse(
+      session!,
+      baseUrl!,
+      courseId: courseId,
+      endpoint: endpoint,
+      searchTerm: searchTerm,
+      sort: sort,
+      enrollmentType: enrollmentType,
+      enrollmentRole: enrollmentRole,
+      enrollmentRoleId: enrollmentRoleId,
+      include: include,
+      userId: userId,
+      userIds: userIds,
+      enrollmentState: enrollmentState,
+      page: page,
+      perPage: perPage,
       params: params,
     );
   }
@@ -106,6 +148,49 @@ class DashboardsInterface with Interface {
 
   Future<List<dashboards.DashboardCard>> getDashboardCards({Object? params}) {
     return dashboards.getDashboardCards(session!, baseUrl!, params: params);
+  }
+}
+
+class RolesInterface with Interface {
+  RolesInterface({Session? session, Uri? baseUrl}) {
+    this.session = session;
+    this.baseUrl = baseUrl;
+  }
+
+  Pagination<roles.Role> listRoles({
+    required Object? accountId,
+    Object? state,
+    Object? showInherited,
+    Object? page,
+    int? perPage,
+    Object? params,
+  }) {
+    return roles.listRoles(
+      session!,
+      baseUrl!,
+      accountId: accountId,
+      state: state,
+      showInherited: showInherited,
+      page: page,
+      perPage: perPage,
+      params: params,
+    );
+  }
+
+  getRole({
+    required Object? accountId,
+    required Object? id,
+    Object? role,
+    Object? params,
+  }) {
+    return roles.getRole(
+      session!,
+      baseUrl!,
+      accountId: accountId,
+      id: id,
+      role: role,
+      params: params,
+    );
   }
 }
 
@@ -144,5 +229,22 @@ class UsersInterface with Interface {
 
   Future getCustomColors({required Object id, Object? params}) {
     return users.getCustomColors(session!, baseUrl!, id: id, params: params);
+  }
+}
+
+class JsEnvInterface with Interface {
+  JsEnvInterface({Session? session, Uri? baseUrl}) {
+    this.session = session;
+    this.baseUrl = baseUrl;
+  }
+
+  Future<js_env.JsEnv?> maybeRoster({
+    required Object? courseId,
+  }) {
+    return js_env.maybeRoster(
+      session!,
+      baseUrl!,
+      courseId: courseId,
+    );
   }
 }
