@@ -49,7 +49,7 @@ Pagination<Tab> getAvailableTabs(
   int? perPage,
   Object? params,
 }) {
-  if (!((const ['accounts', 'courses', 'groups', 'users']).contains(context))) {
+  if (!(const ['accounts', 'courses', 'groups', 'users']).contains(context)) {
     throw ArgumentError.value(context, 'context');
   }
   var method = 'GET';
@@ -60,13 +60,14 @@ Pagination<Tab> getAvailableTabs(
     ['per_page', perPage],
   ];
   var paramsList = [p, params];
+  var constructor =
+      (value) => Tab(attributes: value, session: session, baseUrl: baseUrl);
   return Pagination(
     session,
     method,
     baseUrl,
     reference: url,
     paramsList: paramsList,
-    constructor: (value) =>
-        Tab(attributes: value, session: session, baseUrl: baseUrl),
+    constructor: constructor,
   );
 }

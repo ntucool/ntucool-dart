@@ -9,7 +9,9 @@ class NtucoolException implements Exception {
   @override
   String toString() {
     Object? message = this.message;
-    if (message == null) return "${this.runtimeType}";
+    if (message == null) {
+      return "${this.runtimeType}";
+    }
     return "${this.runtimeType}: $message";
   }
 }
@@ -23,7 +25,9 @@ class RuntimeException implements NtucoolException {
   @override
   String toString() {
     Object? message = this.message;
-    if (message == null) return "${this.runtimeType}";
+    if (message == null) {
+      return "${this.runtimeType}";
+    }
     return "${this.runtimeType}: $message";
   }
 }
@@ -37,7 +41,9 @@ class ApiException implements NtucoolException {
   @override
   String toString() {
     Object? message = this.message;
-    if (message == null) return "${this.runtimeType}";
+    if (message == null) {
+      return "${this.runtimeType}";
+    }
     return "${this.runtimeType}: $message";
   }
 }
@@ -82,7 +88,9 @@ class HttpException implements ApiException {
   @override
   String toString() {
     Object? message = this.message;
-    if (message == null) return "${this.runtimeType}";
+    if (message == null) {
+      return "${this.runtimeType}";
+    }
     return "${this.runtimeType}: $message";
   }
 }
