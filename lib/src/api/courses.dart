@@ -1,6 +1,6 @@
 import '../http/http.dart' show Session;
 import '../utils.dart' show requestJson;
-import 'common.dart' show Course;
+import 'common.dart' show Course, User;
 import 'paginations.dart' show Pagination;
 
 export 'common.dart' show Course, Term;
@@ -12,7 +12,7 @@ export 'common.dart' show Course, Term;
 /// Returns the paginated list of active courses for the current user.
 ///
 /// https://canvas.instructure.com/doc/api/courses.html#method.courses.index
-Pagination<Course> getCourses(
+Pagination<Course> listCourses(
   Session session,
   Uri baseUrl, {
   Object? enrollmentType,
@@ -40,14 +40,81 @@ Pagination<Course> getCourses(
     ['per_page', perPage],
   ];
   var paramsList = [p, params];
+  var constructor =
+      (value) => Course(attributes: value, session: session, baseUrl: baseUrl);
   return Pagination(
     session,
     method,
     baseUrl,
     reference: url,
     paramsList: paramsList,
-    constructor: (value) =>
-        Course(attributes: value, session: session, baseUrl: baseUrl),
+    constructor: constructor,
+  );
+}
+
+/// List users in course
+///
+/// `GET /api/v1/courses/:course_id/users`
+///
+/// `GET /api/v1/courses/:course_id/search_users`
+///
+/// Returns the paginated list of users in this course. And optionally the user's enrollments in the course.
+///
+/// https://canvas.instructure.com/doc/api/courses.html#method.courses.users
+///
+/// sort=last_login may return the following error.
+///
+/// {'errors': [{'message': 'An error occurred.', 'error_code': 'internal_server_error'}], 'error_report_id': error_report_id}
+///
+/// This may happen because of the lack of 'View usage reports' permission and the server handled it incorrectly.
+///
+/// See: https://canvas.instructure.com/doc/api/courses.html#method.courses.recent_students
+Pagination<User> listUsersInCourse(
+  Session session,
+  Uri baseUrl, {
+  required Object? courseId,
+  String endpoint = 'users',
+  Object? searchTerm,
+  Object? sort,
+  Object? enrollmentType,
+  Object? enrollmentRole,
+  Object? enrollmentRoleId,
+  Object? include,
+  Object? userId,
+  Object? userIds,
+  Object? enrollmentState,
+  Object? page,
+  int? perPage,
+  Object? params,
+}) {
+  if (!(const ['users', 'search_users']).contains(endpoint)) {
+    throw ArgumentError.value(endpoint, 'endpoint');
+  }
+  var method = 'GET';
+  var url = '/api/v1/courses/$courseId/$endpoint';
+  var p = [
+    ['search_term', searchTerm],
+    ['sort', sort],
+    ['enrollment_type', enrollmentType],
+    ['enrollment_role', enrollmentRole],
+    ['enrollment_role_id', enrollmentRoleId],
+    ['include', include],
+    ['user_id', userId],
+    ['user_ids', userIds],
+    ['enrollment_state', enrollmentState],
+    ['page', page],
+    ['per_page', perPage],
+  ];
+  var paramsList = [p, params];
+  var constructor =
+      (value) => User(attributes: value, session: session, baseUrl: baseUrl);
+  return Pagination(
+    session,
+    method,
+    baseUrl,
+    reference: url,
+    paramsList: paramsList,
+    constructor: constructor,
   );
 }
 
@@ -68,7 +135,7 @@ Future<Course> getCourse(
   required Object id,
   Object? accountId,
   Object? include,
-  int? teacherLimit,
+  Object? teacherLimit,
   Object? params,
 }) async {
   var method = 'GET';
