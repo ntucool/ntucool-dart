@@ -1,14 +1,12 @@
 library ntucool;
 
 import 'dart:collection' show LinkedHashMap;
-import 'dart:convert';
-import 'dart:io' show File, HttpHeaders;
+import 'dart:io' show HttpHeaders;
 
 import 'package:html/parser.dart' show parse;
 
 import 'src/api/api.dart' show Api;
 import 'src/exceptions.dart' show RuntimeException;
-import 'src/http/cookies.dart' show SimpleCookie;
 import 'src/http/http.dart' show Session;
 import 'src/lock.dart' show FutureChainLock;
 import 'src/objects.dart' show Interface;
@@ -16,6 +14,7 @@ import 'src/utils.dart' as utils;
 
 export 'src/api/courses.dart' show Course, Term;
 export 'src/api/dashboards.dart' show DashboardCard;
+export 'src/api/discussion_topics.dart' show DiscussionTopic, Entry, Reply;
 export 'src/api/enrollments.dart' show Enrollment;
 export 'src/api/files.dart' show File;
 export 'src/api/js_env.dart' show JsEnv;

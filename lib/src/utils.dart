@@ -41,6 +41,8 @@ HttpException? checkStatus(Response response, {bool throwForStatus = true}) {
   return exception;
 }
 
+/// For POST and PUT requests, if [params] is not null, [data] will be replaced
+/// with [params].
 Future<Tuple2<Response, ApiException?>> request(
   Session session,
   String method,

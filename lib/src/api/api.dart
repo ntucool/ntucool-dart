@@ -2,6 +2,7 @@ import '../http/http.dart' as http;
 import '../objects.dart' as objects;
 import 'courses.dart' as courses;
 import 'dashboards.dart' as dashboards;
+import 'discussion_topics.dart' as discussion_topics;
 import 'files.dart' as files;
 import 'js_env.dart' as js_env;
 import 'paginations.dart' as paginations;
@@ -14,6 +15,7 @@ import 'users.dart' as users;
 class Api with objects.Interface {
   var courses = CoursesInterface();
   var dashboards = DashboardsInterface();
+  var discussionTopics = DiscussionTopicsInterface();
   var files = FilesInterface();
   var roles = RolesInterface();
   var tabs = TabsInterface();
@@ -24,6 +26,7 @@ class Api with objects.Interface {
     this.subInterfaces.addAll([
       courses,
       dashboards,
+      discussionTopics,
       files,
       roles,
       tabs,
@@ -151,6 +154,46 @@ class DashboardsInterface with objects.Interface {
 
   Future<List<dashboards.DashboardCard>> getDashboardCards({Object? params}) {
     return dashboards.getDashboardCards(session!, baseUrl!, params: params);
+  }
+}
+
+class DiscussionTopicsInterface with objects.Interface {
+  DiscussionTopicsInterface({http.Session? session, Uri? baseUrl}) {
+    this.session = session;
+    this.baseUrl = baseUrl;
+  }
+
+  paginations.Pagination<discussion_topics.DiscussionTopic>
+      listDiscussionTopics({
+    required String context,
+    required Object? contextId,
+    Object? include,
+    Object? orderBy,
+    Object? scope,
+    Object? onlyAnnouncements,
+    Object? filterBy,
+    Object? searchTerm,
+    Object? excludeContextModuleLockedTopics,
+    Object? page,
+    int? perPage,
+    Object? params,
+  }) {
+    return discussion_topics.listDiscussionTopics(
+      session!,
+      baseUrl!,
+      context: context,
+      contextId: contextId,
+      include: include,
+      orderBy: orderBy,
+      scope: scope,
+      onlyAnnouncements: onlyAnnouncements,
+      filterBy: filterBy,
+      searchTerm: searchTerm,
+      excludeContextModuleLockedTopics: excludeContextModuleLockedTopics,
+      page: page,
+      perPage: perPage,
+      params: params,
+    );
   }
 }
 
