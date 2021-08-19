@@ -18,7 +18,16 @@ export 'src/api/discussion_topics.dart' show DiscussionTopic, Entry, Reply;
 export 'src/api/enrollments.dart' show Enrollment;
 export 'src/api/files.dart' show File;
 export 'src/api/js_env.dart' show JsEnv;
+export 'src/api/modules.dart'
+    show
+        CompletionRequirement,
+        ContentDetails,
+        Module,
+        ModuleItem,
+        ModuleItemSequence,
+        ModuleItemSequenceNode;
 export 'src/api/paginations.dart' show Pagination;
+export 'src/api/roles.dart' show Role;
 export 'src/api/tabs.dart' show Tab;
 export 'src/api/users.dart' show User;
 export 'src/objects.dart' show sentinel;

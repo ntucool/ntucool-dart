@@ -5,6 +5,7 @@ import 'dashboards.dart' as dashboards;
 import 'discussion_topics.dart' as discussion_topics;
 import 'files.dart' as files;
 import 'js_env.dart' as js_env;
+import 'modules.dart' as modules;
 import 'paginations.dart' as paginations;
 import 'roles.dart' as roles;
 import 'tabs.dart' as tabs;
@@ -17,6 +18,7 @@ class Api with objects.Interface {
   var dashboards = DashboardsInterface();
   var discussionTopics = DiscussionTopicsInterface();
   var files = FilesInterface();
+  var modules = ModulesInterface();
   var roles = RolesInterface();
   var tabs = TabsInterface();
   var users = UsersInterface();
@@ -28,6 +30,7 @@ class Api with objects.Interface {
       dashboards,
       discussionTopics,
       files,
+      modules,
       roles,
       tabs,
       users,
@@ -197,6 +200,98 @@ class DiscussionTopicsInterface with objects.Interface {
   }
 }
 
+class FilesInterface with objects.Interface {
+  FilesInterface({http.Session? session, Uri? baseUrl}) {
+    this.session = session;
+    this.baseUrl = baseUrl;
+  }
+
+  paginations.Pagination<files.File> listFiles({
+    required String context,
+    required Object? contextId,
+    Object? contentTypes,
+    Object? excludeContentTypes,
+    Object? searchTerm,
+    Object? include,
+    Object? only,
+    Object? sort,
+    Object? order,
+    Object? page,
+    int? perPage,
+    Object? params,
+  }) {
+    return files.listFiles(
+      session!,
+      baseUrl!,
+      context: context,
+      contextId: contextId,
+      contentTypes: contentTypes,
+      excludeContentTypes: excludeContentTypes,
+      searchTerm: searchTerm,
+      include: include,
+      only: only,
+      sort: sort,
+      order: order,
+      page: page,
+      perPage: perPage,
+      params: params,
+    );
+  }
+}
+
+class ModulesInterface with objects.Interface {
+  ModulesInterface({http.Session? session, Uri? baseUrl}) {
+    this.session = session;
+    this.baseUrl = baseUrl;
+  }
+
+  paginations.Pagination<modules.Module> listModules({
+    required Object? courseId,
+    Object? include,
+    Object? searchTerm,
+    Object? studentId,
+    Object? page,
+    int? perPage,
+    Object? params,
+  }) {
+    return modules.listModules(
+      session!,
+      baseUrl!,
+      courseId: courseId,
+      include: include,
+      searchTerm: searchTerm,
+      studentId: studentId,
+      page: page,
+      perPage: perPage,
+      params: params,
+    );
+  }
+
+  paginations.Pagination<modules.ModuleItem> listModuleItems({
+    required Object? courseId,
+    required Object? moduleId,
+    Object? include,
+    Object? searchTerm,
+    Object? studentId,
+    Object? page,
+    int? perPage,
+    Object? params,
+  }) {
+    return modules.listModuleItems(
+      session!,
+      baseUrl!,
+      courseId: courseId,
+      moduleId: moduleId,
+      include: include,
+      searchTerm: searchTerm,
+      studentId: studentId,
+      page: page,
+      perPage: perPage,
+      params: params,
+    );
+  }
+}
+
 class RolesInterface with objects.Interface {
   RolesInterface({http.Session? session, Uri? baseUrl}) {
     this.session = session;
@@ -235,45 +330,6 @@ class RolesInterface with objects.Interface {
       accountId: accountId,
       id: id,
       role: role,
-      params: params,
-    );
-  }
-}
-
-class FilesInterface with objects.Interface {
-  FilesInterface({http.Session? session, Uri? baseUrl}) {
-    this.session = session;
-    this.baseUrl = baseUrl;
-  }
-
-  paginations.Pagination<files.File> listFiles({
-    required String context,
-    required Object? contextId,
-    Object? contentTypes,
-    Object? excludeContentTypes,
-    Object? searchTerm,
-    Object? include,
-    Object? only,
-    Object? sort,
-    Object? order,
-    Object? page,
-    int? perPage,
-    Object? params,
-  }) {
-    return files.listFiles(
-      session!,
-      baseUrl!,
-      context: context,
-      contextId: contextId,
-      contentTypes: contentTypes,
-      excludeContentTypes: excludeContentTypes,
-      searchTerm: searchTerm,
-      include: include,
-      only: only,
-      sort: sort,
-      order: order,
-      page: page,
-      perPage: perPage,
       params: params,
     );
   }

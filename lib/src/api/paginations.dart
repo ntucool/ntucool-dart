@@ -17,9 +17,9 @@ import '../lock.dart' show FutureChainLock;
 import '../utils.dart' show requestJson;
 
 class Pagination<T> extends Stream<T> {
-  Session session;
-  String method;
-  Uri base;
+  Session? session;
+  String? method;
+  Uri? base;
   String? reference;
   List<Object?>? paramsList;
   Object? data;
@@ -30,14 +30,25 @@ class Pagination<T> extends Stream<T> {
   Multimap<String, Multimap<String, Object>>? links;
   List<T> values = [];
 
-  Pagination(this.session, this.method, this.base,
-      {this.reference,
-      this.paramsList,
-      this.data,
-      this.json,
-      this.cookies,
-      this.headers,
-      this.constructor});
+  Pagination(
+    this.session,
+    this.method,
+    this.base, {
+    this.reference,
+    this.paramsList,
+    this.data,
+    this.json,
+    this.cookies,
+    this.headers,
+    this.constructor,
+  });
+
+  factory Pagination.fromIterable(Iterable<T> elements) {
+    var pagination = Pagination<T>(null, null, null);
+    pagination.links = Multimap();
+    pagination.values.addAll(elements);
+    return pagination;
+  }
 
   T operator [](int index) {
     return values[index];
@@ -63,7 +74,7 @@ class Pagination<T> extends Stream<T> {
     //           .toList()))
     // ]);
     if (links == null) {
-      tmp = await requestJson(session, method, base,
+      tmp = await requestJson(session!, method!, base!,
           reference: reference,
           paramsList: paramsList,
           data: data,
@@ -73,7 +84,7 @@ class Pagination<T> extends Stream<T> {
     } else if (links.containsKey(key)) {
       // TODO: What should still be sent?
       var url = links[key].first['url'].first as Uri;
-      tmp = await requestJson(session, method, url);
+      tmp = await requestJson(session!, method!, url);
     } else {
       return Tuple2(null, null);
     }

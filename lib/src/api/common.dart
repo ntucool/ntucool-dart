@@ -4,9 +4,8 @@ import 'enrollments.dart' as enrollments_api;
 
 /// https://canvas.instructure.com/doc/api/courses.html#Term
 class Term extends Simple {
-  Term({Map<String, dynamic>? attributes}) {
-    this.attributes = attributes ?? {};
-  }
+  Term({Map<String, dynamic>? attributes}) : super(attributes: attributes);
+
   Object? get id => getattr('id');
   Object? get name => getattr('name');
   Object? get startAt => getattr('start_at');
@@ -105,7 +104,7 @@ class Course extends Base {
   /// include[]=term
   Object? get term => getattr(
         'term',
-        constructor: (attributes) => Term(attributes: attributes),
+        constructor: (data) => Term(attributes: data),
       );
 
   /// optional: information on progress through the course returned only if
@@ -276,8 +275,8 @@ class User extends Base {
   /// details about the format of these records.
   Object? get enrollments => getattr(
         'enrollments',
-        constructor: (attributes) => enrollments_api.Enrollment(
-            attributes: attributes, session: session, baseUrl: baseUrl),
+        constructor: (data) => enrollments_api.Enrollment(
+            attributes: data, session: session, baseUrl: baseUrl),
         isList: true,
       );
 
