@@ -6,6 +6,7 @@ import 'discussion_topics.dart' as discussion_topics;
 import 'files.dart' as files;
 import 'js_env.dart' as js_env;
 import 'modules.dart' as modules;
+import 'pages.dart' as pages;
 import 'paginations.dart' as paginations;
 import 'roles.dart' as roles;
 import 'tabs.dart' as tabs;
@@ -19,6 +20,7 @@ class Api with objects.Interface {
   var discussionTopics = DiscussionTopicsInterface();
   var files = FilesInterface();
   var modules = ModulesInterface();
+  var pages = PagesInterface();
   var roles = RolesInterface();
   var tabs = TabsInterface();
   var users = UsersInterface();
@@ -31,6 +33,7 @@ class Api with objects.Interface {
       discussionTopics,
       files,
       modules,
+      pages,
       roles,
       tabs,
       users,
@@ -285,6 +288,53 @@ class ModulesInterface with objects.Interface {
       include: include,
       searchTerm: searchTerm,
       studentId: studentId,
+      page: page,
+      perPage: perPage,
+      params: params,
+    );
+  }
+}
+
+class PagesInterface with objects.Interface {
+  PagesInterface({http.Session? session, Uri? baseUrl}) {
+    this.session = session;
+    this.baseUrl = baseUrl;
+  }
+
+  Future<pages.Page> getFrontPage({
+    required String context,
+    required Object? contextId,
+    Object? params,
+  }) {
+    return pages.getFrontPage(
+      session!,
+      baseUrl!,
+      context: context,
+      contextId: contextId,
+      params: params,
+    );
+  }
+
+  paginations.Pagination<pages.Page> listPages({
+    required String context,
+    required Object? contextId,
+    Object? sort,
+    Object? order,
+    Object? searchTerm,
+    Object? published,
+    Object? page,
+    int? perPage,
+    Object? params,
+  }) {
+    return pages.listPages(
+      session!,
+      baseUrl!,
+      context: context,
+      contextId: contextId,
+      sort: sort,
+      order: order,
+      searchTerm: searchTerm,
+      published: published,
       page: page,
       perPage: perPage,
       params: params,

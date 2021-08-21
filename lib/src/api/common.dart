@@ -17,6 +17,7 @@ class Course extends Base {
   Course({Map<String, dynamic>? attributes, Session? session, Uri? baseUrl})
       : super(attributes: attributes, session: session, baseUrl: baseUrl);
 
+  @override
   final List<String> toStringNames = const ['id', 'name'];
 
   /// the unique identifier for the course
@@ -234,6 +235,7 @@ class User extends Base {
   User({Map<String, dynamic>? attributes, Session? session, Uri? baseUrl})
       : super(attributes: attributes, session: session, baseUrl: baseUrl);
 
+  @override
   final List<String> toStringNames = const ['id', 'name'];
 
   /// The ID of the user.

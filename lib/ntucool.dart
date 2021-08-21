@@ -26,6 +26,7 @@ export 'src/api/modules.dart'
         ModuleItem,
         ModuleItemSequence,
         ModuleItemSequenceNode;
+export 'src/api/pages.dart' show Page;
 export 'src/api/paginations.dart' show Pagination;
 export 'src/api/roles.dart' show Role;
 export 'src/api/tabs.dart' show Tab;

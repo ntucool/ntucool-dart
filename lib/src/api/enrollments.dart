@@ -7,6 +7,7 @@ class Enrollment extends objects.Base {
       {Map<String, dynamic>? attributes, http.Session? session, Uri? baseUrl})
       : super(attributes: attributes, session: session, baseUrl: baseUrl);
 
+  @override
   final List<String> toStringNames = const ['id'];
 
   /// The ID of the enrollment.

@@ -7,6 +7,7 @@ class DashboardCard extends Simple {
   DashboardCard({Map<String, dynamic>? attributes})
       : super(attributes: attributes);
 
+  @override
   final List<String> toStringNames = const ['assetString'];
 
   Object? get longName => getattr('longName');

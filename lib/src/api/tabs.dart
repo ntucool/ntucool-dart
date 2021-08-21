@@ -7,6 +7,7 @@ class Tab extends Base {
   Tab({Map<String, dynamic>? attributes, Session? session, Uri? baseUrl})
       : super(attributes: attributes, session: session, baseUrl: baseUrl);
 
+  @override
   final List<String> toStringNames = const ['id', 'label'];
 
   Object? get htmlUrl => getattr('html_url');

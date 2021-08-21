@@ -8,6 +8,7 @@ class Reply extends objects.Base {
   Reply({Map<String, dynamic>? attributes, http.Session? session, Uri? baseUrl})
       : super(attributes: attributes, session: session, baseUrl: baseUrl);
 
+  @override
   final List<String> toStringNames = const ['id', 'user_id'];
 
   /// The unique identifier for the reply.
@@ -47,6 +48,7 @@ class Entry extends objects.Base {
   Entry({Map<String, dynamic>? attributes, http.Session? session, Uri? baseUrl})
       : super(attributes: attributes, session: session, baseUrl: baseUrl);
 
+  @override
   final List<String> toStringNames = const ['id', 'user_id'];
 
   /// The unique identifier for the entry.
@@ -101,6 +103,7 @@ class DiscussionTopic extends objects.Base {
       {Map<String, dynamic>? attributes, http.Session? session, Uri? baseUrl})
       : super(attributes: attributes, session: session, baseUrl: baseUrl);
 
+  @override
   final List<String> toStringNames = const ['id', 'title'];
 
   /// The ID of this topic.

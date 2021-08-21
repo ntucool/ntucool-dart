@@ -7,6 +7,7 @@ class File extends objects.Base {
   File({Map<String, dynamic>? attributes, http.Session? session, Uri? baseUrl})
       : super(attributes: attributes, session: session, baseUrl: baseUrl);
 
+  @override
   final List<String> toStringNames = const ['id', 'display_name'];
 
   Object? get id => getattr('id');

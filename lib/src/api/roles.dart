@@ -8,6 +8,7 @@ class Role extends Base {
   Role({Map<String, dynamic>? attributes, Session? session, Uri? baseUrl})
       : super(attributes: attributes, session: session, baseUrl: baseUrl);
 
+  @override
   final List<String> toStringNames = const ['label'];
 
   /// The label of the role.
